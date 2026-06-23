@@ -77,4 +77,4 @@ gem 'groupdate'                 # Grouping tanggal
 gem 'activestorage'             # Upload foto produk
 gem 'rolify'
 gem "pwa", "~> 4.0"
-gem "rqrcode", "~> 2.2"
+gem "rqrcode", "~> 3.2"
