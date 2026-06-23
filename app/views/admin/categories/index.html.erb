@@ -1,0 +1,71 @@
+<% content_for :page_title, "Master Kategori" %>
+<% content_for :page_subtitle, "Kelola pengelompokan produk agen kelontong" %>
+
+<div class="p-6 lg:p-8 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900"><%= @categories.total_count %></p>
+        <p class="text-sm text-slate-500">Total kategori produk</p>
+      </div>
+    </div>
+    <%= link_to new_admin_category_path,
+                class: "inline-flex items-center justify-center gap-2 px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-2xl transition shadow-lg shadow-sky-600/20 text-sm" do %>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Tambah Kategori
+    <% end %>
+  </div>
+
+  <% if @categories.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <% @categories.each do |category| %>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition p-6 group">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 transition">
+              <svg class="w-5 h-5 text-emerald-600 group-hover:text-white transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+              </svg>
+            </div>
+            <div class="flex gap-1">
+              <%= link_to edit_admin_category_path(category),
+                          class: "p-2 text-sky-600 hover:bg-sky-50 rounded-xl transition" do %>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                </svg>
+              <% end %>
+              <%= link_to admin_category_path(category),
+                          data: { turbo_method: :delete, turbo_confirm: "Yakin hapus kategori ini?" },
+                          class: "p-2 text-red-500 hover:bg-red-50 rounded-xl transition" do %>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+              <% end %>
+            </div>
+          </div>
+          <h3 class="font-semibold text-slate-900 text-lg mb-1"><%= category.name %></h3>
+          <p class="text-sm text-slate-500 line-clamp-2 min-h-[2.5rem]">
+            <%= category.description.presence || "Belum ada deskripsi" %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <%= render "shared/pagination", collection: @categories %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm text-center py-20 px-6">
+      <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">📂</div>
+      <h3 class="text-lg font-semibold text-slate-900 mb-2">Belum ada kategori</h3>
+      <p class="text-slate-500 text-sm mb-6">Buat kategori untuk mengelompokkan produk grosir Anda.</p>
+      <%= link_to "Tambah Kategori Pertama", new_admin_category_path,
+                  class: "inline-flex items-center gap-2 px-6 py-3 bg-sky-600 text-white font-semibold rounded-2xl hover:bg-sky-700 transition text-sm" %>
+    </div>
+  <% end %>
+</div>

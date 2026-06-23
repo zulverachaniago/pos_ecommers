@@ -1,0 +1,20 @@
+<%# locals: (product:, variants:, stock_totals: {}) %>
+<% if variants.size == 1 && store_customer_signed_in? %>
+  <% snapshot = StockInventory.variant_snapshot(variants.first, totals: stock_totals) %>
+  <% if snapshot[:on_hand].positive? %>
+    <%= button_to "+ Keranjang",
+                  add_item_store_cart_path,
+                  method: :post,
+                  params: { product_variant_id: variants.first.id, quantity: 1 },
+                  form: { class: "flex-1" },
+                  class: "w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-2xl text-sm font-semibold transition shadow-sm shadow-sky-600/20 border-0 cursor-pointer" %>
+  <% else %>
+    <span class="flex-1 py-2.5 text-center bg-gray-100 text-gray-400 rounded-2xl text-sm font-semibold">Habis</span>
+  <% end %>
+<% elsif variants.size == 1 %>
+  <%= link_to "+ Keranjang", new_user_session_path,
+              class: "flex-1 py-2.5 text-center bg-sky-600 text-white rounded-2xl text-sm font-semibold transition" %>
+<% else %>
+  <%= link_to "+ Keranjang", store_product_path(product),
+              class: "flex-1 py-2.5 text-center bg-sky-600 hover:bg-sky-700 text-white rounded-2xl text-sm font-semibold transition" %>
+<% end %>

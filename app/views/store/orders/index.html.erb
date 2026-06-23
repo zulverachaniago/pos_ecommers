@@ -1,0 +1,42 @@
+<% content_for :title, "Pesanan Saya" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 lg:py-10">
+  <div class="mb-8">
+    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">Pesanan Saya</h1>
+    <p class="text-gray-500 mt-1">Riwayat dan status pesanan grosir warung Anda.</p>
+  </div>
+
+  <% if @orders.any? %>
+    <div class="space-y-4">
+      <% @orders.each do |order| %>
+        <%= link_to store_order_path(order),
+                    class: "block bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md hover:border-sky-100 transition p-5" do %>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="min-w-0">
+              <p class="font-mono text-sm font-semibold text-gray-900"><%= order.order_number %></p>
+              <p class="text-sm text-gray-500 mt-1">
+                <%= order.order_date&.strftime("%d/%m/%Y %H:%M") || order.created_at.strftime("%d/%m/%Y %H:%M") %>
+                · <%= order.order_items.size %> item
+              </p>
+            </div>
+            <div class="flex items-center gap-4 sm:flex-shrink-0">
+              <%= render "store/orders/status_badge", order: order %>
+              <div class="text-right">
+                <p class="text-xs text-gray-500">Total</p>
+                <p class="text-lg font-bold text-emerald-600">Rp <%= number_with_delimiter(order.total_amount.to_i) %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-sky-50 rounded-3xl text-4xl mb-5">📋</div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">Belum ada pesanan</h2>
+      <p class="text-gray-500 mb-6">Pesan produk dari keranjang untuk melihat riwayat di sini.</p>
+      <%= link_to "Belanja Sekarang", store_products_path,
+                  class: "inline-block px-8 py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-2xl transition" %>
+    </div>
+  <% end %>
+</div>

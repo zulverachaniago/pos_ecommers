@@ -1,0 +1,56 @@
+<% content_for :page_title, "Pesanan Selesai" %>
+<% content_for :page_subtitle, "Riwayat pengiriman Anda" %>
+
+<div class="p-6 lg:p-8 space-y-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-sky-600"><%= @delivering_count %></p>
+      <p class="text-sm text-slate-500 mt-1">Sedang dikirim</p>
+    </div>
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-emerald-600"><%= @done_count %></p>
+      <p class="text-sm text-slate-500 mt-1">Selesai dikirim</p>
+    </div>
+  </div>
+
+  <%= render "courier/shared/order_search",
+             search_path: courier_completed_index_path,
+             placeholder: "Cari nomor order yang Anda kirim..." %>
+
+  <% if @orders.any? %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100">
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">No. Order</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Customer</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Status</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Total</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @orders.each do |order| %>
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-900"><%= order.order_number %></td>
+                <td class="px-6 py-4 text-slate-700"><%= order.customer.name %></td>
+                <td class="px-6 py-4"><%= render "store/orders/status_badge", order: order %></td>
+                <td class="px-6 py-4 text-right font-semibold text-emerald-600">Rp <%= number_with_delimiter(order.total_amount.to_i) %></td>
+                <td class="px-6 py-4 text-center">
+                  <%= link_to "Detail", courier_completed_path(order),
+                              class: "inline-flex px-4 py-2 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-xl transition" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <%= paginate @orders if respond_to?(:paginate) %>
+  <% else %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm text-center py-16 px-6">
+      <p class="text-slate-500 text-sm">Belum ada pesanan yang Anda kirim.</p>
+    </div>
+  <% end %>
+</div>

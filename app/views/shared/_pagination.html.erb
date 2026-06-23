@@ -1,0 +1,10 @@
+<% collection = local_assigns[:collection] %>
+<% if collection.respond_to?(:total_count) %>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60">
+    <p class="text-xs text-slate-500"><%= pagination_summary(collection) %></p>
+    <% if collection.total_pages > 1 %>
+      <% paginate_params = params[:q].present? ? { q: params[:q].permit(:name_cont, :sku_cont, :category_id_eq, :is_active_eq) } : {} %>
+      <%= paginate collection, params: paginate_params, window: 2 %>
+    <% end %>
+  </div>
+<% end %>

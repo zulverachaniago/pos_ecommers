@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Navbar -->
+  <nav class="bg-white border-b sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+      <div class="flex items-center gap-x-3">
+        <div class="w-11 h-11 bg-gradient-to-br from-sky-600 to-blue-700 rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+          🛒
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-gray-900">Oder Store</h1>
+          <p class="text-xs text-gray-500 -mt-1">Agen Kelontong Modern</p>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
+        <%= link_to "Katalog Produk", store_products_path, class: "hover:text-sky-600 transition" %>
+        <%= link_to "Cara Order", "#cara", class: "hover:text-sky-600 transition" %>
+        <%= link_to "Tentang Kami", "#", class: "hover:text-sky-600 transition" %>
+      </div>
+
+      <div class="flex items-center gap-x-4">
+        <% if user_signed_in? %>
+          <%= link_to "Dashboard", admin_root_path, class: "px-6 py-3 bg-sky-600 text-white rounded-2xl hover:bg-sky-700 font-semibold transition" %>
+        <% else %>
+          <%= link_to "Login", new_user_session_path, class: "px-6 py-3 text-gray-700 hover:bg-gray-100 rounded-2xl font-medium transition" %>
+          <%= link_to "Daftar Warung", new_user_registration_path, class: "px-6 py-3 bg-sky-600 text-white rounded-2xl hover:bg-sky-700 font-semibold transition" %>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-br from-slate-900 via-sky-900 to-sky-800 text-white py-24">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm mb-6">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          </span>
+          Siap melayani Klapanunggal & sekitarnya
+        </div>
+        
+        <h1 class="text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6">
+          Grosir Kelontong<br>Lebih Mudah,<br>Lebih Untung
+        </h1>
+        
+        <p class="text-xl text-sky-100 mb-10 max-w-lg">
+          Order via aplikasi, ambil di tempat, atau kami antar. Hemat waktu dan modal warung Anda.
+        </p>
+
+        <div class="flex flex-wrap gap-4">
+          <%= link_to "Lihat Katalog Produk", store_products_path, 
+                      class: "px-8 py-4 bg-white text-sky-700 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition shadow-lg" %>
+          <%= link_to "Daftar Sekarang", new_user_registration_path, 
+                      class: "px-8 py-4 border border-white/60 hover:bg-white/10 rounded-2xl font-semibold text-lg transition" %>
+        </div>
+      </div>
+
+      <div class="hidden md:block">
+        <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl">
+          <img src="https://picsum.photos/id/1015/600/420" alt="Agen Kelontong" class="rounded-2xl shadow-xl">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold text-gray-900">Kenapa Warung Memilih Oder Store?</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-xl transition">
+          <div class="w-14 h-14 bg-sky-100 rounded-2xl flex items-center justify-center text-4xl mb-6">📱</div>
+          <h3 class="text-2xl font-semibold mb-3">Order Kapan Saja</h3>
+          <p class="text-gray-600">Lihat stok & harga real-time. Order lewat HP tanpa harus ke gudang.</p>
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-xl transition">
+          <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-4xl mb-6">💰</div>
+          <h3 class="text-2xl font-semibold mb-3">Harga Grosir Kompetitif</h3>
+          <p class="text-gray-600">Harga lebih murah dari pasar tradisional + diskon volume.</p>
+        </div>
+
+        <div class="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-xl transition">
+          <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-4xl mb-6">🚛</div>
+          <h3 class="text-2xl font-semibold mb-3">Pengantaran Cepat</h3>
+          <p class="text-gray-600">Antar langsung ke warung Anda di Klapanunggal, Cileungsi, Jonggol, dll.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section class="bg-gradient-to-r from-sky-700 to-blue-800 py-20 text-white">
+    <div class="max-w-4xl mx-auto text-center px-6">
+      <h2 class="text-4xl font-bold mb-6">Siap membangun warung lebih modern?</h2>
+      <p class="text-xl text-sky-100 mb-10">Bergabung bersama ratusan warung lain yang sudah hemat waktu dan modal.</p>
+      
+      <%= link_to "Daftar Sekarang - Gratis", new_user_registration_path, 
+                  class: "inline-block px-12 py-5 bg-white text-sky-700 font-bold text-xl rounded-3xl hover:scale-105 transition transform" %>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,90 @@
+<% content_for :page_title, @order.order_number %>
+<% content_for :page_subtitle, "Detail dan kelola status pesanan" %>
+
+<div class="p-6 lg:p-8 space-y-6">
+  <%= link_to admin_orders_path, class: "inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-sky-600 transition" do %>
+    ← Kembali ke daftar pesanan
+  <% end %>
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="xl:col-span-2 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Nomor Pesanan</p>
+            <h1 class="text-xl font-bold font-mono text-slate-900"><%= @order.order_number %></h1>
+            <p class="text-sm text-slate-500 mt-2">
+              <%= @order.order_date&.strftime("%d %B %Y, %H:%M") || @order.created_at.strftime("%d %B %Y, %H:%M") %>
+            </p>
+          </div>
+          <%= render "store/orders/status_badge", order: @order %>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+          <% @order.order_items.each do |item| %>
+            <% variant = item.product_variant %>
+            <% product = variant.product %>
+            <div class="p-5 flex gap-4">
+              <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">📦</div>
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-slate-900 truncate"><%= product.name %></p>
+                <p class="text-sm text-slate-500"><%= variant.variant_name %> × <%= item.quantity %></p>
+              </div>
+              <p class="font-semibold text-slate-900 flex-shrink-0">
+                Rp <%= number_with_delimiter(item.subtotal.to_i) %>
+              </p>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <span class="font-medium text-slate-700">Total Pembayaran</span>
+          <span class="text-2xl font-bold text-emerald-600">Rp <%= number_with_delimiter(@order.total_amount.to_i) %></span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <p class="text-xs text-slate-500 uppercase tracking-wider mb-5">Riwayat Status Pesanan</p>
+        <%= render "store/orders/status_timeline", order: @order, records: @status_records %>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">Pelanggan</p>
+        <p class="font-semibold text-slate-900"><%= @order.customer.name %></p>
+        <% if @order.customer.phone.present? %>
+          <p class="text-sm text-slate-500 mt-1"><%= @order.customer.phone %></p>
+        <% end %>
+        <% if @order.customer.address.present? %>
+          <p class="text-sm text-slate-600 mt-2"><%= @order.customer.address %></p>
+        <% else %>
+          <p class="text-sm text-amber-600 mt-2">Alamat belum diisi</p>
+        <% end %>
+      </div>
+
+      <% if @next_statuses.any? %>
+        <% next_status = @next_statuses.first %>
+        <% next_label = Order::ORDER_STATUS_LABELS[next_status] %>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-4">Perbarui Status</p>
+          <%= form_with url: admin_order_path(@order), method: :patch, class: "space-y-4" do %>
+            <input type="hidden" name="order[order_status]" value="<%= next_status %>">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Catatan (opsional)</label>
+              <textarea name="order[notes]" rows="3" placeholder="Contoh: Pesanan sedang dipacking"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+            </div>
+            <button type="submit" class="admin-order-update-btn w-full">
+              <%= next_label %>
+            </button>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-sm text-emerald-800">
+          Pesanan sudah selesai. Tidak ada status lanjutan.
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

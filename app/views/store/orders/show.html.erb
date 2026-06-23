@@ -1,0 +1,67 @@
+<% content_for :title, "Detail Pesanan" %>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 lg:py-10">
+  <%= link_to store_orders_path, class: "inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-sky-600 transition mb-6" do %>
+    ← Kembali ke daftar pesanan
+  <% end %>
+
+  <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+    <div class="p-6 border-b border-gray-100">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Nomor Pesanan</p>
+          <h1 class="text-xl font-bold font-mono text-gray-900"><%= @order.order_number %></h1>
+          <p class="text-sm text-gray-500 mt-2">
+            <%= @order.order_date&.strftime("%d %B %Y, %H:%M") || @order.created_at.strftime("%d %B %Y, %H:%M") %>
+          </p>
+        </div>
+        <%= render "store/orders/status_badge", order: @order %>
+      </div>
+    </div>
+
+    <div class="divide-y divide-gray-100">
+      <% @order.order_items.each do |item| %>
+        <% variant = item.product_variant %>
+        <% product = variant.product %>
+        <div class="p-5 flex gap-4">
+          <div class="w-12 h-12 bg-sky-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">📦</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-gray-900 truncate"><%= product.name %></p>
+            <p class="text-sm text-gray-500"><%= variant.variant_name %> × <%= item.quantity %></p>
+          </div>
+          <p class="font-semibold text-gray-900 flex-shrink-0">
+            Rp <%= number_with_delimiter(item.subtotal.to_i) %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="p-6 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="font-medium text-gray-700 block">Total Pembayaran</span>
+        <span class="text-xs text-gray-500 mt-1"><%= @order.payment_method_label %></span>
+      </div>
+      <span class="text-2xl font-bold text-emerald-600">Rp <%= number_with_delimiter(@order.total_amount.to_i) %></span>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-6">
+    <p class="text-xs text-gray-500 uppercase tracking-wider mb-5">Riwayat Status Pesanan</p>
+    <%= render "store/orders/status_timeline", order: @order, records: @status_records %>
+  </div>
+
+  <% if current_store_customer.address.present? %>
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+      <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Alamat Pengiriman</p>
+      <p class="font-semibold text-gray-900"><%= current_store_customer.name %></p>
+      <p class="text-sm text-gray-600 mt-1"><%= current_store_customer.address %></p>
+      <% if current_store_customer.phone.present? %>
+        <p class="text-sm text-gray-500 mt-1"><%= current_store_customer.phone %></p>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800">
+      Lengkapi <%= link_to "alamat pengiriman", edit_store_customer_path(anchor: "address", return_to: "cart"), class: "cart-address-link" %> agar pesanan bisa dikirim.
+    </div>
+  <% end %>
+</div>

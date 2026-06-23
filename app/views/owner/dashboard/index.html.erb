@@ -1,0 +1,117 @@
+<% content_for :page_title, "Dashboard Penjualan" %>
+<% content_for :page_subtitle, "Ringkasan penjualan POS, online, dan performa toko" %>
+
+<div class="p-6 lg:p-8 space-y-8">
+  <div class="bg-gradient-to-br from-slate-900 via-violet-900 to-purple-800 rounded-3xl p-6 lg:p-8 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute -top-10 -right-10 w-48 h-48 bg-violet-400 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 left-1/3 w-40 h-40 bg-purple-600 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative">
+      <p class="text-violet-200 text-sm font-medium mb-1"><%= Time.zone.today.strftime("%A, %d %B %Y") %></p>
+      <h2 class="text-2xl lg:text-3xl font-bold tracking-tight">
+        Halo, <%= current_user.email.split("@").first.capitalize %> 👋
+      </h2>
+      <p class="text-violet-100 mt-2 text-sm lg:text-base">
+        Pantau penjualan kasir, pesanan online, dan performa toko Anda.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-5">
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-slate-900">Rp <%= number_with_delimiter(@today_metrics.combined_sales.to_i) %></p>
+      <p class="text-sm text-slate-500 mt-1">Penjualan Hari Ini</p>
+      <p class="text-xs text-violet-600 mt-2"><%= @today_metrics.combined_count %> transaksi</p>
+      <p class="text-[11px] text-slate-400 mt-1">
+        POS Rp <%= number_with_delimiter(@today_metrics.pos_sales.to_i) %> ·
+        Online Rp <%= number_with_delimiter(@today_metrics.online_sales.to_i) %>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-slate-900">Rp <%= number_with_delimiter(@month_metrics.combined_sales.to_i) %></p>
+      <p class="text-sm text-slate-500 mt-1">Penjualan Bulan Ini</p>
+      <p class="text-xs text-violet-600 mt-2"><%= @month_metrics.combined_count %> transaksi</p>
+      <p class="text-[11px] text-slate-400 mt-1">
+        POS <%= @month_metrics.pos_count %> · Online <%= @month_metrics.online_count %>
+      </p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-amber-600"><%= @pending_online_orders %></p>
+      <p class="text-sm text-slate-500 mt-1">Pesanan Aktif</p>
+      <p class="text-xs text-amber-600 mt-2"><%= @new_online_orders %> menunggu proses</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-slate-900"><%= @total_customers %></p>
+      <p class="text-sm text-slate-500 mt-1">Total Customer</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-amber-600"><%= @low_stock_count + @out_of_stock_count %></p>
+      <p class="text-sm text-slate-500 mt-1">Varian Stok Rendah / Habis</p>
+      <p class="text-xs text-slate-400 mt-2"><%= @out_of_stock_count %> habis · <%= @low_stock_count %> menipis</p>
+      <%= link_to "Lihat Report Stok", owner_reports_stock_path, class: "inline-block mt-3 text-xs font-medium text-violet-600 hover:text-violet-700" %>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <p class="text-3xl font-bold text-slate-900"><%= @total_suppliers %></p>
+      <p class="text-sm text-slate-500 mt-1">Total Supplier</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <h3 class="text-sm font-semibold text-slate-900 mb-1">Penjualan 7 Hari Terakhir</h3>
+      <p class="text-xs text-slate-500 mb-4">Gabungan POS + Pesanan Online</p>
+      <% if @daily_sales.any? %>
+        <div class="space-y-3">
+          <% (6.days.ago.to_date..Date.current).each do |date| %>
+            <% amount = @daily_sales[date].to_d %>
+            <% max = @daily_sales.values.max.to_d.nonzero? || 1 %>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-600"><%= date.strftime("%d/%m") %></span>
+                <span class="font-semibold text-slate-900">Rp <%= number_with_delimiter(amount.to_i) %></span>
+              </div>
+              <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-violet-500 rounded-full" style="width: <%= [(amount / max * 100).round, 100].min %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-slate-500 text-center py-8">Belum ada data penjualan.</p>
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-slate-900">Aktivitas Terbaru</h3>
+        <%= link_to "Report", owner_reports_sales_path, class: "text-xs text-violet-600 hover:text-violet-700 font-medium" %>
+      </div>
+      <% if @recent_activities.any? %>
+        <div class="space-y-3">
+          <% @recent_activities.each do |activity| %>
+            <div class="flex items-start justify-between gap-2 py-2 border-b border-slate-50 last:border-0">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex px-2 py-0.5 text-[10px] font-bold rounded-full <%= activity.kind == 'Online' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700' %>">
+                    <%= activity.kind %>
+                  </span>
+                  <p class="text-xs font-mono font-semibold text-slate-900 truncate"><%= activity.reference %></p>
+                </div>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5"><%= activity.customer_name %> · <%= activity.status_label %></p>
+              </div>
+              <p class="text-xs font-bold text-emerald-600 whitespace-nowrap">Rp <%= number_with_delimiter(activity.amount.to_i) %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-slate-500 text-center py-8">Belum ada aktivitas.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

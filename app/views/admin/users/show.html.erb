@@ -1,0 +1,90 @@
+<% content_for :page_title, "Detail Pengguna" %>
+<% content_for :page_subtitle, @user.email %>
+<% role_name = @user.roles.first&.name %>
+
+<div class="p-6 lg:p-8 max-w-3xl space-y-6">
+  <%= link_to admin_users_path, class: "inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-sky-600 transition" do %>
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+    Kembali ke daftar pengguna
+  <% end %>
+
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-br from-violet-600 to-indigo-700 text-white p-6">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0">
+            <%= @user.email.to_s.first.upcase %>
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-xl font-bold truncate"><%= @user.email %></h2>
+            <% if role_name.present? %>
+              <span class="inline-flex mt-2 px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 text-white capitalize">
+                <%= role_name %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+        <%= link_to edit_admin_user_path(@user),
+                    class: "inline-flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-xs font-medium transition flex-shrink-0" do %>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+          </svg>
+          Edit
+        <% end %>
+      </div>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 bg-slate-50 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Login Terakhir</p>
+          <p class="font-medium text-slate-900">
+            <%= @user.last_sign_in_at ? @user.last_sign_in_at.strftime("%d/%m/%Y %H:%M") : "Belum pernah login" %>
+          </p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Login</p>
+          <p class="font-semibold text-slate-900"><%= @user.sign_in_count %> kali</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 bg-slate-50 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">IP Terakhir</p>
+          <p class="font-medium text-slate-900"><%= @user.last_sign_in_ip.presence || "—" %></p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-2xl">
+          <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">IP Saat Ini</p>
+          <p class="font-medium text-slate-900"><%= @user.current_sign_in_ip.presence || "—" %></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-sm text-slate-500 pt-2 border-t border-slate-100">
+        <div>
+          <p class="text-xs text-slate-400">Terdaftar</p>
+          <p><%= @user.created_at.strftime("%d/%m/%Y %H:%M") %></p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-slate-400">Terakhir diupdate</p>
+          <p><%= @user.updated_at.strftime("%d/%m/%Y %H:%M") %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    <%= link_to edit_admin_user_path(@user),
+                class: "inline-flex items-center gap-2 px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-2xl transition text-sm" do %>
+      Edit Pengguna
+    <% end %>
+    <% if @user != current_user %>
+      <%= link_to admin_user_path(@user),
+                  data: { turbo_method: :delete, turbo_confirm: "Yakin hapus pengguna #{@user.email}?" },
+                  class: "inline-flex items-center gap-2 px-6 py-3 border border-red-200 text-red-600 font-medium rounded-2xl hover:bg-red-50 transition text-sm" do %>
+        Hapus
+      <% end %>
+    <% end %>
+  </div>
+</div>

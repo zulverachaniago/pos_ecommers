@@ -1,0 +1,161 @@
+<% content_for :page_title, "Struk Transaksi" %>
+<% content_for :page_subtitle, @transaction.transaction_number %>
+
+<% content_for :head do %>
+  <style>
+    @media print {
+      @page {
+        size: 80mm auto;
+        margin: 4mm;
+      }
+
+      body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      [data-sidebar-target="sidebar"],
+      [data-sidebar-target="overlay"],
+      header,
+      .pos-receipt-actions,
+      .pos-receipt-back {
+        display: none !important;
+      }
+
+      main {
+        overflow: visible !important;
+        padding: 0 !important;
+      }
+
+      .pos-receipt-page {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: none !important;
+      }
+
+      .pos-receipt-paper {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        max-width: 80mm !important;
+        width: 80mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+<% end %>
+
+<%
+  total_belanja = @transaction.total_amount.to_i
+  bayar = (@transaction.amount_paid.presence || @transaction.total_amount).to_i
+  kembalian = [bayar - total_belanja, 0].max
+  payment_label = (@transaction.cash? || kembalian.positive?) ? "Tunai" : "Transfer"
+%>
+
+<div class="pos-receipt-page p-6 lg:p-8 flex flex-col items-center space-y-6">
+  <%= link_to pos_transactions_path,
+              class: "pos-receipt-back self-start inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-sky-600 transition max-w-[320px] w-full" do %>
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+    Kembali ke riwayat
+  <% end %>
+
+  <!-- Struk -->
+  <article id="receipt" class="pos-receipt-paper w-full max-w-[320px] bg-white border border-slate-200 shadow-sm rounded-sm overflow-hidden font-mono text-[13px] leading-relaxed text-slate-900">
+
+    <!-- Header toko -->
+    <header class="text-center px-4 pt-5 pb-3 border-b border-dashed border-slate-300">
+      <p class="text-base font-bold tracking-wide uppercase">Oder Store</p>
+      <p class="text-[11px] text-slate-500 mt-0.5">Struk Pembelian</p>
+      <p class="text-[11px] text-slate-500">================================</p>
+    </header>
+
+    <!-- Info transaksi -->
+    <section class="px-4 py-3 space-y-1 text-[12px] border-b border-dashed border-slate-300">
+      <div class="flex justify-between gap-2">
+        <span class="text-slate-500 shrink-0">No. Transaksi</span>
+        <span class="font-semibold text-right break-all"><%= @transaction.transaction_number %></span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span class="text-slate-500 shrink-0">Tanggal</span>
+        <span class="text-right"><%= @transaction.created_at.strftime("%d/%m/%Y %H:%M") %></span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span class="text-slate-500 shrink-0">Kasir</span>
+        <span class="text-right truncate max-w-[180px]"><%= @transaction.user.email %></span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span class="text-slate-500 shrink-0">Pelanggan</span>
+        <span class="text-right"><%= @transaction.customer&.name || "Pelanggan Umum" %></span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span class="text-slate-500 shrink-0">Pembayaran</span>
+        <span class="text-right font-semibold uppercase"><%= payment_label %></span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span class="text-slate-500 shrink-0">Status</span>
+        <span class="text-right uppercase"><%= @transaction.payment_status %></span>
+      </div>
+    </section>
+
+    <!-- Item -->
+    <section class="px-4 py-3 border-b border-dashed border-slate-300">
+      <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Daftar Barang</p>
+      <div class="space-y-3">
+        <% @transaction.pos_transaction_items.each do |item| %>
+          <% subtotal = (item.quantity * item.price_at_sale).to_i %>
+          <% unit_price = item.price_at_sale.to_i %>
+          <div>
+            <p class="font-semibold leading-snug"><%= item.product_variant.product.name %></p>
+            <% if item.product_variant.variant_name.present? %>
+              <p class="text-[11px] text-slate-500"><%= item.product_variant.variant_name %></p>
+            <% end %>
+            <div class="flex justify-between gap-2 mt-0.5">
+              <span class="text-slate-600"><%= item.quantity %> x <%= number_with_delimiter(unit_price) %></span>
+              <span class="font-semibold whitespace-nowrap"><%= number_with_delimiter(subtotal) %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <!-- Ringkasan bayar -->
+    <section class="px-4 py-3 border-b border-dashed border-slate-300 space-y-1.5">
+      <div class="flex justify-between gap-2">
+        <span>Total Belanja</span>
+        <span class="font-bold">Rp <%= number_with_delimiter(total_belanja) %></span>
+      </div>
+      <div class="flex justify-between gap-2">
+        <span>Bayar</span>
+        <span class="font-bold">Rp <%= number_with_delimiter(bayar) %></span>
+      </div>
+      <div class="flex justify-between gap-2 text-base">
+        <span class="font-bold">Kembalian</span>
+        <span class="font-bold">Rp <%= number_with_delimiter(kembalian) %></span>
+      </div>
+    </section>
+
+    <!-- Footer struk -->
+    <footer class="px-4 py-4 text-center">
+      <p class="text-[11px] text-slate-500 mb-1">================================</p>
+      <p class="text-[12px] font-semibold">Terima Kasih</p>
+      <p class="text-[11px] text-slate-500 mt-1">Barang yang sudah dibeli</p>
+      <p class="text-[11px] text-slate-500">tidak dapat ditukar/dikembalikan</p>
+    </footer>
+  </article>
+
+  <!-- Aksi (disembunyikan saat cetak) -->
+  <div class="pos-receipt-actions flex gap-3 w-full max-w-[320px]">
+    <%= link_to new_pos_transaction_path,
+                class: "flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl text-center transition text-sm font-sans" do %>
+      + Transaksi Baru
+    <% end %>
+    <button type="button" onclick="window.print()"
+            class="flex-1 py-3 border border-slate-200 text-slate-600 font-medium rounded-2xl hover:bg-slate-50 transition text-sm font-sans">
+      Cetak Struk
+    </button>
+  </div>
+</div>

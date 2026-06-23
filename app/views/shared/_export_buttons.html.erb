@@ -1,0 +1,7 @@
+<% safe_params = request.query_parameters.except(:format) %>
+<div class="flex flex-wrap gap-2">
+  <%= link_to "Export CSV", url_for(format: :csv, **safe_params),
+              class: "inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition shadow-sm" %>
+  <%= link_to "Export Excel", url_for(format: :xls, **safe_params),
+              class: "inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition shadow-sm" %>
+</div>

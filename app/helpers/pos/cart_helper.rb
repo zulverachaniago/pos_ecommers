@@ -1,0 +1,2 @@
+module Pos::CartHelper
+end

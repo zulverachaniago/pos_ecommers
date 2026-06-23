@@ -1,0 +1,83 @@
+<% content_for :page_title, "Report Stok" %>
+<% content_for :page_subtitle, "Stok fisik, pesanan online, dan ketersediaan per varian" %>
+
+<div class="p-6 lg:p-8 space-y-6">
+  <% low_stock = @stock_rows.count { |r| r[:status] == "Rendah" } %>
+  <% out_stock = @stock_rows.count { |r| r[:status] == "Habis" } %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+      <p class="text-2xl font-bold text-slate-900"><%= @variants.total_count %></p>
+      <p class="text-sm text-slate-500 mt-1">Total varian produk</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-amber-100 shadow-sm p-5">
+      <p class="text-2xl font-bold text-amber-600"><%= @low_stock_count %></p>
+      <p class="text-sm text-slate-500 mt-1">Stok menipis (≤ minimum)</p>
+      <p class="text-xs text-slate-400 mt-1"><%= low_stock %> di halaman ini</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-red-100 shadow-sm p-5">
+      <p class="text-2xl font-bold text-red-600"><%= @out_of_stock_count %></p>
+      <p class="text-sm text-slate-500 mt-1">Stok habis</p>
+      <p class="text-xs text-slate-400 mt-1"><%= out_stock %> di halaman ini</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+    <div>
+      <p class="text-xs text-amber-600"><%= @pending_online_orders %> pesanan online aktif perlu dipenuhi</p>
+      <p class="text-xs text-slate-500 mt-1">Stok tersedia = stok fisik dikurangi qty pesanan online yang belum selesai</p>
+    </div>
+    <%= render "shared/export_buttons" %>
+  </div>
+
+  <% if @stock_rows.any? %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100">
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">SKU</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Produk</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Varian</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Kategori</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Stok Fisik</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Pesanan Online</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Stok Tersedia</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Min</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @stock_rows.each do |row| %>
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="px-6 py-4 font-mono text-xs text-slate-600"><%= row[:sku] %></td>
+                <td class="px-6 py-4 font-semibold text-slate-900"><%= row[:product] %></td>
+                <td class="px-6 py-4 text-slate-600"><%= row[:variant] %></td>
+                <td class="px-6 py-4 text-slate-500"><%= row[:category] || "—" %></td>
+                <td class="px-6 py-4 text-right font-semibold text-slate-900"><%= row[:stock] %></td>
+                <td class="px-6 py-4 text-right font-semibold <%= row[:reserved].positive? ? 'text-amber-600' : 'text-slate-400' %>"><%= row[:reserved] %></td>
+                <td class="px-6 py-4 text-right font-semibold <%= row[:available].positive? ? 'text-emerald-600' : 'text-red-600' %>"><%= row[:available] %></td>
+                <td class="px-6 py-4 text-right text-slate-500"><%= row[:minimum] %></td>
+                <td class="px-6 py-4 text-center">
+                  <% if row[:status] == "Habis" %>
+                    <span class="inline-flex px-2.5 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Habis</span>
+                  <% elsif row[:status] == "Rendah" %>
+                    <span class="inline-flex px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">Rendah</span>
+                  <% else %>
+                    <span class="inline-flex px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">Aman</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "shared/pagination", collection: @variants %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm text-center py-16 px-6">
+      <div class="text-4xl mb-3">📦</div>
+      <p class="text-slate-500 text-sm">Belum ada data produk.</p>
+    </div>
+  <% end %>
+</div>

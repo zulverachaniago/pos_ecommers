@@ -1,0 +1,68 @@
+<% records = local_assigns[:records] || order.order_status_records.chronological.includes(:user) %>
+<% current_step = Order.order_statuses[order.order_status] %>
+<% pending_steps = [
+  { key: "order", label: "Order", step: 1 },
+  { key: "process", label: "Proses", step: 2 },
+  { key: "ship", label: "Kirim", step: 3 },
+  { key: "done", label: "Selesai", step: 4 }
+].select { |s| s[:step] > current_step } %>
+
+<div class="order-timeline">
+  <% if records.any? %>
+    <% records.each_with_index do |record, index| %>
+      <% is_last_record = index == records.length - 1 && pending_steps.empty? %>
+      <% is_current = record.order_status == order.order_status && is_last_record %>
+      <div class="order-timeline__item <%= is_current ? 'order-timeline__item--current' : 'order-timeline__item--done' %>">
+        <div class="order-timeline__marker">
+          <span class="order-timeline__dot"></span>
+          <% unless is_last_record && pending_steps.empty? %>
+            <span class="order-timeline__line"></span>
+          <% end %>
+        </div>
+        <div class="order-timeline__content">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <p class="font-semibold text-gray-900"><%= record.status_label %></p>
+            <time class="text-xs text-gray-500 whitespace-nowrap">
+              <%= record.created_at.strftime("%d %b %Y, %H:%M") %>
+            </time>
+          </div>
+          <p class="text-sm text-gray-500 mt-1">
+            oleh <span class="font-medium text-gray-700"><%= record.actor_name %></span>
+          </p>
+          <% if record.notes.present? %>
+            <p class="text-sm text-gray-600 mt-2 bg-gray-50 rounded-xl px-3 py-2"><%= record.notes %></p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="order-timeline__item order-timeline__item--current">
+      <div class="order-timeline__marker">
+        <span class="order-timeline__dot"></span>
+        <% if pending_steps.any? %>
+          <span class="order-timeline__line"></span>
+        <% end %>
+      </div>
+      <div class="order-timeline__content">
+        <p class="font-semibold text-gray-900"><%= order.order_status_label %></p>
+        <p class="text-sm text-gray-500 mt-1">Status saat ini</p>
+      </div>
+    </div>
+  <% end %>
+
+  <% pending_steps.each_with_index do |step, index| %>
+    <% is_last = index == pending_steps.length - 1 %>
+    <div class="order-timeline__item order-timeline__item--pending">
+      <div class="order-timeline__marker">
+        <span class="order-timeline__dot"></span>
+        <% unless is_last %>
+          <span class="order-timeline__line order-timeline__line--pending"></span>
+        <% end %>
+      </div>
+      <div class="order-timeline__content">
+        <p class="font-medium text-gray-400"><%= step[:label] %></p>
+        <p class="text-xs text-gray-400 mt-1">Menunggu</p>
+      </div>
+    </div>
+  <% end %>
+</div>

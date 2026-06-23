@@ -1,0 +1,140 @@
+<div class="min-h-screen flex">
+  <!-- Brand panel -->
+  <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 right-0 w-80 h-80 bg-violet-600 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 flex flex-col justify-between p-12 w-full">
+      <%= link_to root_path, class: "flex items-center gap-3 group w-fit" do %>
+        <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:bg-white/20 transition">
+          🛒
+        </div>
+        <div>
+          <p class="text-xl font-bold tracking-tight">Oder Store</p>
+          <p class="text-xs text-indigo-200">Panel Internal Staff</p>
+        </div>
+      <% end %>
+
+      <div class="max-w-md">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm mb-8">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+          </span>
+          Admin · Kasir · Owner
+        </div>
+
+        <h1 class="text-4xl xl:text-5xl font-bold leading-tight tracking-tight mb-6">
+          Login staff<br>operasional toko
+        </h1>
+        <p class="text-lg text-indigo-100 leading-relaxed">
+          Kelola inventori, transaksi kasir, laporan penjualan, dan data pelanggan dari satu panel internal.
+        </p>
+
+        <div class="mt-12 grid grid-cols-3 gap-4">
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4">
+            <p class="text-2xl font-bold">Admin</p>
+            <p class="text-xs text-indigo-200 mt-1">Manajemen penuh</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4">
+            <p class="text-2xl font-bold">Kasir</p>
+            <p class="text-xs text-indigo-200 mt-1">POS & transaksi</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4">
+            <p class="text-2xl font-bold">Owner</p>
+            <p class="text-xs text-indigo-200 mt-1">Laporan & insight</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-sm text-indigo-300/80">&copy; <%= Date.current.year %> Oder Store. Klapanunggal, Bogor.</p>
+    </div>
+  </div>
+
+  <!-- Form panel -->
+  <div class="flex-1 flex items-center justify-center bg-gray-50 px-6 py-12">
+    <div class="w-full max-w-md">
+      <!-- Mobile header -->
+      <div class="lg:hidden text-center mb-8">
+        <%= link_to root_path, class: "inline-flex items-center gap-3 mb-6" do %>
+          <div class="w-11 h-11 bg-gradient-to-br from-slate-800 to-indigo-900 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+            🛒
+          </div>
+          <div class="text-left">
+            <p class="text-lg font-bold text-gray-900">Oder Store</p>
+            <p class="text-xs text-gray-500">Panel Internal Staff</p>
+          </div>
+        <% end %>
+        <h2 class="text-2xl font-bold text-gray-900">Login Staff</h2>
+        <p class="text-gray-500 mt-1">Admin, kasir, dan owner</p>
+      </div>
+
+      <div class="hidden lg:block mb-8">
+        <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Login Staff</h2>
+        <p class="text-gray-500 mt-2">Masuk dengan akun yang dibuat oleh administrator</p>
+      </div>
+
+      <%= render "shared/flash", wrapper_class: "mb-6 space-y-2" %>
+
+      <div class="bg-white shadow-xl shadow-gray-200/60 border border-gray-100 rounded-3xl p-8">
+        <%= form_for(resource, as: resource_name, url: staff_session_path, html: { class: "space-y-5" }) do |f| %>
+
+          <div>
+            <%= f.label :email, "Alamat Email", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+              </span>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                                  placeholder: "staff@oderstore.com",
+                                  class: "w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 focus:bg-white transition" %>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :password, "Password", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </span>
+              <%= f.password_field :password, autocomplete: "current-password",
+                                     placeholder: "••••••••",
+                                     class: "w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-50 focus:bg-white transition" %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center gap-2.5 cursor-pointer select-none">
+              <%= f.check_box :remember_me, class: "w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+              <span class="text-sm text-gray-600">Ingat saya</span>
+            </label>
+            <%= link_to "Lupa password?", new_password_path(resource_name),
+                        class: "text-sm text-indigo-600 hover:text-indigo-700 font-medium hover:underline" %>
+          </div>
+
+          <%= f.submit "Masuk ke Dashboard",
+                       class: "staff-login-submit w-full py-4 text-white font-semibold rounded-2xl transition shadow-lg cursor-pointer mt-2 border-0" %>
+        <% end %>
+      </div>
+
+      <div class="mt-8 text-center space-y-3">
+        <p class="text-sm text-gray-500">
+          Pelanggan / pembeli online?
+          <%= link_to "Login di sini", new_user_session_path,
+                      class: "text-indigo-600 font-semibold hover:text-indigo-700 hover:underline ml-1" %>
+        </p>
+        <p class="text-xs text-gray-400">
+          Akun staff dibuat oleh administrator. Tidak ada pendaftaran mandiri.
+        </p>
+        <%= link_to "← Kembali ke beranda", root_path,
+                    class: "inline-block text-sm text-gray-400 hover:text-gray-600 transition" %>
+      </div>
+    </div>
+  </div>
+</div>

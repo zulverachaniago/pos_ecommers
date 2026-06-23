@@ -1,0 +1,103 @@
+<% content_for :page_title, "Master Pelanggan" %>
+<% content_for :page_subtitle, "Kelola data pelanggan retail dan business" %>
+
+<div class="p-6 lg:p-8 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900"><%= @customers.total_count %></p>
+        <p class="text-sm text-slate-500">Total pelanggan terdaftar</p>
+      </div>
+    </div>
+    <%= link_to new_admin_customer_path,
+                class: "inline-flex items-center justify-center gap-2 px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-2xl transition shadow-lg shadow-sky-600/20 text-sm" do %>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Tambah Pelanggan
+    <% end %>
+  </div>
+
+  <% if @customers.any? %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100">
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Pelanggan</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Tipe</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Telepon</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Alamat</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @customers.each do |customer| %>
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                      </svg>
+                    </div>
+                    <%= link_to customer.name, admin_customer_path(customer),
+                                class: "font-semibold text-slate-900 hover:text-sky-600 transition" %>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <% if customer.business? %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-700">Business</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Retail</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4">
+                  <% if customer.phone.present? %>
+                    <a href="tel:<%= customer.phone %>" class="text-sky-600 hover:underline"><%= customer.phone %></a>
+                  <% else %>
+                    <span class="text-slate-400">—</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-slate-500 max-w-xs truncate"><%= customer.address.presence || "—" %></td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center justify-center gap-2">
+                    <%= link_to edit_admin_customer_path(customer),
+                                class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-sky-600 hover:bg-sky-50 rounded-xl text-xs font-medium transition" do %>
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                      </svg>
+                      Edit
+                    <% end %>
+                    <%= link_to admin_customer_path(customer),
+                                data: { turbo_method: :delete, turbo_confirm: "Yakin hapus pelanggan ini?" },
+                                class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-xl text-xs font-medium transition" do %>
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                      Hapus
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "shared/pagination", collection: @customers %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm text-center py-20 px-6">
+      <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">👥</div>
+      <h3 class="text-lg font-semibold text-slate-900 mb-2">Belum ada pelanggan</h3>
+      <p class="text-slate-500 text-sm mb-6">Tambahkan data pelanggan untuk transaksi dan order.</p>
+      <%= link_to "Tambah Pelanggan Pertama", new_admin_customer_path,
+                  class: "inline-flex items-center gap-2 px-6 py-3 bg-sky-600 text-white font-semibold rounded-2xl hover:bg-sky-700 transition text-sm" %>
+    </div>
+  <% end %>
+</div>

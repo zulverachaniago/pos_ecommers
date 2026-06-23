@@ -1,0 +1,23 @@
+<% if notice.present? || alert.present? %>
+  <% wrapper_class = local_assigns.fetch(:wrapper_class, "flex-shrink-0 px-4 lg:px-8 pt-4 space-y-2") %>
+  <div class="flash-messages <%= wrapper_class %>" data-controller="flash">
+    <% if notice.present? %>
+      <div data-flash-target="message"
+           class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300">
+        <svg class="w-5 h-5 flex-shrink-0 text-emerald-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <%= notice %>
+      </div>
+    <% end %>
+    <% if alert.present? %>
+      <div data-flash-target="message"
+           class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 px-5 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300">
+        <svg class="w-5 h-5 flex-shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+        <%= alert %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,60 @@
+<% content_for :page_title, "Customer" %>
+<% content_for :page_subtitle, "Data pelanggan toko" %>
+
+<div class="p-6 lg:p-8 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-slate-900"><%= @customers.total_count %></p>
+        <p class="text-sm text-slate-500">Total pelanggan</p>
+      </div>
+    </div>
+    <%= render "shared/export_buttons" %>
+  </div>
+
+  <% if @customers.any? %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-100">
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Nama</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Tipe</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Telepon</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Alamat</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">Saldo</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @customers.each do |customer| %>
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="px-6 py-4 font-semibold text-slate-900"><%= customer.name %></td>
+                <td class="px-6 py-4">
+                  <% if customer.business? %>
+                    <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-700">Business</span>
+                  <% else %>
+                    <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Retail</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-slate-600"><%= customer.phone.presence || "—" %></td>
+                <td class="px-6 py-4 text-slate-500 max-w-xs truncate"><%= customer.address.presence || "—" %></td>
+                <td class="px-6 py-4 text-right text-slate-700">Rp <%= number_with_delimiter(customer.balance.to_i) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "shared/pagination", collection: @customers %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm text-center py-20 px-6">
+      <div class="text-4xl mb-3">👥</div>
+      <p class="text-slate-500 text-sm">Belum ada data pelanggan.</p>
+    </div>
+  <% end %>
+</div>

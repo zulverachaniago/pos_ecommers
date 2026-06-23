@@ -1,0 +1,43 @@
+<%= form_with(model: [:admin, role], class: "space-y-6") do |f| %>
+
+  <% if role.errors.any? %>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl text-sm">
+      <p class="font-semibold mb-2"><%= pluralize(role.errors.count, "kesalahan") %> perlu diperbaiki:</p>
+      <ul class="list-disc list-inside space-y-1">
+        <% role.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Nama Role (sistem)", class: "block text-sm font-medium text-slate-700 mb-2" %>
+    <%= f.text_field :name,
+                     class: "w-full px-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50 focus:bg-white transition font-mono text-sm",
+                     placeholder: "contoh: supervisor",
+                     readonly: role.system? && role.persisted?,
+                     disabled: role.system? && role.persisted? %>
+    <% if role.system? && role.persisted? %>
+      <%= f.hidden_field :name %>
+      <p class="text-xs text-amber-600 mt-1.5">Nama role sistem tidak dapat diubah.</p>
+    <% else %>
+      <p class="text-xs text-slate-400 mt-1.5">Huruf kecil, angka, underscore. Contoh: admin, cashier, supervisor</p>
+    <% end %>
+  </div>
+
+  <% if role.persisted? %>
+    <div class="p-4 bg-slate-50 rounded-2xl text-sm text-slate-600">
+      <p class="font-medium text-slate-900 mb-1">Tampilan: <%= role.display_name %></p>
+      <p><%= role_description(role) %></p>
+    </div>
+  <% end %>
+
+  <div class="flex flex-wrap gap-3 pt-2">
+    <%= f.submit role.persisted? ? "Simpan Perubahan" : "Tambah Role",
+                 class: "px-8 py-3 bg-sky-600 text-white font-semibold rounded-2xl hover:bg-sky-700 transition cursor-pointer shadow-sm" %>
+    <%= link_to "Batal", role.persisted? ? admin_role_path(role) : admin_roles_path,
+                class: "px-8 py-3 border border-slate-200 text-slate-600 font-medium rounded-2xl hover:bg-slate-50 transition" %>
+  </div>
+
+<% end %>

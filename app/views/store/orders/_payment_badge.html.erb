@@ -1,0 +1,9 @@
+<% method = order.payment_method %>
+<% classes = {
+  "cod" => "order-payment-badge--cod",
+  "transfer" => "order-payment-badge--transfer"
+} %>
+
+<span class="order-payment-badge <%= classes[method] %>">
+  <%= order.payment_method_label %>
+</span>

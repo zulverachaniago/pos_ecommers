@@ -1,0 +1,20 @@
+<%# locals: movement %>
+<%
+  badge_classes = case movement.movement_type
+  when "stock_in"
+    "bg-emerald-100 text-emerald-700"
+  when "adjustment"
+    "bg-amber-100 text-amber-700"
+  when "stock_out"
+    "bg-orange-100 text-orange-700"
+  when "pos_sale"
+    "bg-sky-100 text-sky-700"
+  when "order_sale"
+    "bg-violet-100 text-violet-700"
+  else
+    "bg-slate-100 text-slate-700"
+  end
+%>
+<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold <%= badge_classes %>">
+  <%= movement.movement_type_label %>
+</span>

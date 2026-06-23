@@ -1,0 +1,11 @@
+<% status = order.order_status %>
+<% classes = {
+  "order" => "order-status-badge--order",
+  "process" => "order-status-badge--process",
+  "ship" => "order-status-badge--ship",
+  "done" => "order-status-badge--done"
+} %>
+
+<span class="order-status-badge <%= classes[status] %>">
+  <%= order.order_status_label %>
+</span>

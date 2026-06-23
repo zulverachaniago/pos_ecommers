@@ -1,0 +1,37 @@
+<% search_path = local_assigns.fetch(:search_path) %>
+<% search_placeholder = local_assigns.fetch(:placeholder, "Cari nomor pesanan...") %>
+
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4"
+     data-controller="qr-scanner">
+  <%= form_with url: search_path, method: :get, class: "flex gap-2", data: { qr_scanner_target: "form" } do %>
+    <div class="relative flex-1">
+      <%= text_field_tag :q, params[:q],
+                         placeholder: search_placeholder,
+                         autocomplete: "off",
+                         class: "w-full pl-4 pr-4 py-3 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500",
+                         data: { qr_scanner_target: "input", action: "keydown->qr-scanner#handleEnter" } %>
+    </div>
+    <button type="button"
+            class="courier-scan-btn flex-shrink-0"
+            title="Scan QR Code"
+            data-action="click->qr-scanner#open">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+      </svg>
+    </button>
+    <%= submit_tag "Cari", class: "courier-search-btn flex-shrink-0" %>
+  <% end %>
+
+  <div class="qr-scanner-modal hidden" data-qr-scanner-target="modal">
+    <div class="qr-scanner-modal__backdrop" data-action="click->qr-scanner#close"></div>
+    <div class="qr-scanner-modal__panel">
+      <div class="flex items-center justify-between mb-4">
+        <p class="font-semibold text-slate-900">Scan QR Pesanan</p>
+        <button type="button" class="text-slate-500 hover:text-slate-800" data-action="click->qr-scanner#close">✕</button>
+      </div>
+      <div id="courier-qr-reader" class="qr-scanner-reader" data-qr-scanner-target="reader"></div>
+      <p class="text-xs text-slate-500 mt-3 text-center">Arahkan kamera ke QR code pada label pengiriman</p>
+    </div>
+  </div>
+</div>

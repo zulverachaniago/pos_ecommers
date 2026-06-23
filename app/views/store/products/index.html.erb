@@ -1,0 +1,218 @@
+<% content_for :title, "Katalog Produk" %>
+
+<% category_gradients = [
+  "from-sky-100 to-blue-200",
+  "from-emerald-100 to-teal-200",
+  "from-amber-100 to-orange-200",
+  "from-violet-100 to-purple-200",
+  "from-rose-100 to-pink-200",
+  "from-cyan-100 to-sky-200"
+] %>
+
+<!-- Hero -->
+<section class="bg-gradient-to-br from-slate-900 via-sky-900 to-sky-800 text-white relative overflow-hidden">
+  <div class="absolute inset-0 opacity-20">
+    <div class="absolute -top-20 -right-20 w-72 h-72 bg-sky-400 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/4 w-64 h-64 bg-blue-600 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-sm mb-5">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+        Stok terupdate · Harga grosir langsung
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-3">
+        Katalog Produk Grosir
+      </h1>
+      <p class="text-sky-100 text-lg">
+        <% if store_customer_signed_in? %>
+          Halo<%= ", #{current_store_customer&.name}" if current_store_customer&.name.present? %> — pilih produk, simpan wishlist, atau tambahkan ke keranjang.
+        <% else %>
+          Pilih produk kelontong terlengkap di Klapanunggal — order mudah, harga bersaing.
+        <% end %>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Search & Filter -->
+<div class="sticky top-16 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+    <%= form_with url: store_products_path, method: :get, class: "flex flex-col sm:flex-row gap-3" do |f| %>
+      <%= f.hidden_field :category_id, value: params[:category_id] if params[:category_id].present? %>
+      <div class="relative flex-1">
+        <%= f.text_field :search,
+                         value: params[:search],
+                         placeholder: "Cari mie, sabun, rokok, beras...",
+                         class: "w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-500 bg-gray-50 focus:bg-white transition" %>
+        <span class="absolute left-4 top-3 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </span>
+      </div>
+      <%= f.submit "Cari", class: "px-8 py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-2xl transition cursor-pointer sm:w-auto w-full border-0" %>
+      <% if params[:search].present? || params[:category_id].present? %>
+        <%= link_to "Reset", store_products_path,
+                    class: "px-6 py-3 border border-gray-200 text-gray-600 font-medium rounded-2xl hover:bg-gray-50 transition text-center" %>
+      <% end %>
+    <% end %>
+
+    <div class="flex gap-2 mt-4 overflow-x-auto pb-1">
+      <%= link_to store_products_path(search: params[:search]),
+                  class: "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition #{params[:category_id].blank? ? 'bg-sky-600 text-white shadow-md shadow-sky-600/25' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}" do %>
+        Semua
+      <% end %>
+      <% @categories.each do |category| %>
+        <%= link_to store_products_path(category_id: category.id, search: params[:search]),
+                    class: "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition #{params[:category_id].to_i == category.id ? 'bg-sky-600 text-white shadow-md shadow-sky-600/25' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}" do %>
+          <%= category.name %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Product Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-10">
+  <div class="flex items-center justify-between mb-6">
+    <p class="text-gray-500 text-sm">
+      Menampilkan <span class="font-semibold text-gray-900"><%= @products.total_count %></span> produk
+      <% if params[:search].present? %>
+        untuk "<span class="font-semibold text-gray-900"><%= params[:search] %></span>"
+      <% end %>
+    </p>
+  </div>
+
+  <% if @products.any? %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+      <% @products.each do |product| %>
+        <% variants = product.product_variants.to_a %>
+        <% min_price = variants.map(&:price_grosir).compact.min %>
+        <% stock_summary = product_stock_summary(product, @stock_totals) %>
+        <% gradient = category_gradients[product.category_id.to_i % category_gradients.size] %>
+
+        <article class="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+          <div class="relative">
+            <% if product.image.attached? %>
+              <%= link_to url_for(product.image),
+                          target: "_blank",
+                          rel: "noopener",
+                          class: "block overflow-hidden",
+                          title: "Lihat gambar produk" do %>
+                <div class="h-40 bg-gray-100 relative">
+                  <%= image_tag product.image,
+                                class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
+                                alt: product.name %>
+                  <% if product.category.present? %>
+                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-xs font-semibold text-gray-700 px-3 py-1 rounded-full">
+                      <%= product.category.name %>
+                    </span>
+                  <% end %>
+                  <% if variants.size > 1 %>
+                    <span class="absolute bottom-3 right-3 bg-sky-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      <%= variants.size %> varian
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <%= link_to store_product_path(product), class: "block overflow-hidden" do %>
+                <div class="h-40 bg-gradient-to-br <%= gradient %> flex items-center justify-center relative">
+                  <span class="text-5xl group-hover:scale-110 transition-transform duration-300">🛍️</span>
+                  <% if product.category.present? %>
+                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-xs font-semibold text-gray-700 px-3 py-1 rounded-full">
+                      <%= product.category.name %>
+                    </span>
+                  <% end %>
+                  <% if variants.size > 1 %>
+                    <span class="absolute bottom-3 right-3 bg-sky-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      <%= variants.size %> varian
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+            <div class="absolute top-3 right-3 z-10">
+              <%= render "store/shared/wishlist_button", product: product %>
+            </div>
+          </div>
+
+          <div class="p-4 flex flex-col flex-1">
+            <h3 class="font-semibold text-gray-900 leading-snug mb-1 line-clamp-2 group-hover:text-sky-600 transition">
+              <%= link_to product.name, store_product_path(product) %>
+            </h3>
+
+            <% if product.sku.present? %>
+              <p class="text-xs text-gray-400 mb-2">SKU: <%= product.sku %></p>
+            <% end %>
+
+            <% if min_price %>
+              <div class="mb-3">
+                <p class="text-xs text-gray-500 mb-0.5">Mulai dari</p>
+                <p class="text-lg font-bold text-emerald-600">
+                  Rp <%= number_with_delimiter(min_price.to_i) %>
+                  <span class="text-xs font-normal text-gray-400">/ grosir</span>
+                </p>
+              </div>
+            <% end %>
+
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <p class="text-xs text-gray-500">
+                Stok: <span class="font-semibold text-gray-800"><%= stock_summary[:label] %></span>
+              </p>
+              <%= render "shared/stock_status_badge", status: stock_summary[:status], compact: true %>
+            </div>
+
+            <div class="flex gap-2 mt-auto pt-2">
+              <%= link_to store_product_path(product),
+                          class: "flex-1 py-2.5 text-center border border-gray-200 text-gray-700 rounded-2xl text-sm font-medium hover:bg-gray-50 transition" do %>
+                Detail
+              <% end %>
+              <% if stock_summary[:status] != :out %>
+                <%= render "store/shared/add_to_cart_button", product: product, variants: variants, stock_totals: @stock_totals %>
+              <% else %>
+                <span class="flex-1 py-2.5 text-center bg-gray-100 text-gray-400 rounded-2xl text-sm font-semibold cursor-not-allowed">
+                  Habis
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </div>
+
+    <div class="mt-8 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <%= render "shared/pagination", collection: @products %>
+    </div>
+  <% else %>
+    <div class="text-center py-20 bg-white rounded-3xl border border-gray-100">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-3xl text-4xl mb-5">🔍</div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">Produk tidak ditemukan</h2>
+      <p class="text-gray-500 mb-6 max-w-md mx-auto">
+        <% if params[:search].present? || params[:category_id].present? %>
+          Coba ubah kata kunci pencarian atau pilih kategori lain.
+        <% else %>
+          Belum ada produk aktif di katalog. Silakan cek kembali nanti.
+        <% end %>
+      </p>
+      <%= link_to "Lihat Semua Produk", store_products_path,
+                  class: "inline-block px-8 py-3 bg-sky-600 text-white font-semibold rounded-2xl hover:bg-sky-700 transition" %>
+    </div>
+  <% end %>
+</div>
+
+<% unless user_signed_in? %>
+  <section class="bg-gradient-to-r from-sky-700 to-blue-800 py-12">
+    <div class="max-w-3xl mx-auto text-center px-4 sm:px-6 text-white">
+      <h2 class="text-2xl font-bold mb-3">Belum punya akun warung?</h2>
+      <p class="text-sky-100 mb-6">Daftar gratis untuk belanja grosir dan simpan pesanan di keranjang.</p>
+      <%= link_to "Daftar Sekarang — Gratis", new_user_registration_path,
+                  class: "inline-block px-10 py-4 bg-white text-sky-700 font-bold rounded-2xl hover:scale-105 transition transform shadow-lg" %>
+    </div>
+  </section>
+<% end %>

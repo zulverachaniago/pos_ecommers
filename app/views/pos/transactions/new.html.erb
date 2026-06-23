@@ -1,0 +1,258 @@
+<% content_for :page_title, "Point of Sale" %>
+<% content_for :page_subtitle, "Transaksi penjualan langsung di kasir" %>
+<% content_for :pos_full_height, true %>
+
+<div class="pos-page p-4 lg:p-6 max-w-[1600px] mx-auto w-full"
+     data-controller="pos-customer pos-cart pos-payment"
+     data-action="pos-cart:total-changed->pos-payment#syncTotal"
+     data-pos-customer-customers-value="<%= @customers_json %>"
+     data-pos-cart-products-value="<%= @variants_json %>">
+
+  <!-- Compact customer bar (after selected) -->
+  <div data-pos-customer-target="customerBar"
+       class="hidden mb-4 flex-shrink-0 flex items-center justify-between gap-3 p-3 bg-sky-50 border border-sky-200 rounded-2xl">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 bg-sky-600 text-white rounded-xl flex items-center justify-center text-sm flex-shrink-0">👤</div>
+      <div class="min-w-0">
+        <p data-pos-customer-target="barName" class="font-semibold text-slate-900 truncate text-sm"></p>
+        <p data-pos-customer-target="barMeta" class="text-xs text-slate-500 truncate"></p>
+      </div>
+    </div>
+    <button type="button"
+            data-action="click->pos-customer#changeCustomer"
+            class="text-xs text-sky-600 hover:text-sky-700 font-medium whitespace-nowrap px-3 py-1.5 rounded-lg hover:bg-sky-100 transition">
+      Ganti Pelanggan
+    </button>
+  </div>
+
+  <!-- Step 1: Customer picker -->
+  <div data-pos-customer-target="pickerCard"
+       class="flex-shrink-0 bg-white rounded-2xl border border-slate-100 shadow-sm p-4 lg:p-5 mb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+      <div class="flex items-center gap-3">
+        <span class="w-7 h-7 bg-sky-600 text-white rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+        <div>
+          <h2 class="font-semibold text-slate-900 text-sm">Pilih Pelanggan</h2>
+          <p data-pos-customer-target="stepHint" class="text-xs text-slate-500">Ketik untuk mencari — tidak perlu scroll</p>
+        </div>
+      </div>
+      <button type="button"
+              data-action="click->pos-customer#skipCustomer"
+              class="px-4 py-2 border border-slate-200 text-slate-600 font-medium rounded-xl hover:bg-slate-50 transition text-xs whitespace-nowrap">
+        ⚡ Pelanggan Umum
+      </button>
+    </div>
+
+    <div data-pos-customer-target="pickerPanel">
+      <div data-pos-customer-target="searchPanel">
+        <div class="relative">
+          <input type="text"
+                 data-pos-customer-target="search"
+                 data-action="input->pos-customer#filterCustomers"
+                 placeholder="Cari pelanggan (min. 2 karakter)..."
+                 autocomplete="off"
+                 class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50 focus:bg-white transition text-sm">
+          <span class="absolute left-3.5 top-3 text-slate-400">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </span>
+        </div>
+        <p data-pos-customer-target="resultsHint" class="text-xs text-slate-400 mt-2 px-1"></p>
+        <div data-pos-customer-target="results" class="mt-2 space-y-1 max-h-52 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <div data-pos-customer-target="selectedPanel" class="hidden">
+      <div class="flex items-center justify-between gap-3 p-3 bg-sky-50 border border-sky-200 rounded-xl">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 bg-sky-600 text-white rounded-lg flex items-center justify-center flex-shrink-0">✓</div>
+          <div class="min-w-0">
+            <p data-pos-customer-target="selectedName" class="font-semibold text-slate-900 truncate text-sm"></p>
+            <p data-pos-customer-target="selectedMeta" class="text-xs text-slate-500 truncate"></p>
+          </div>
+        </div>
+        <button type="button"
+                data-action="click->pos-customer#changeCustomer"
+                class="text-xs text-sky-600 font-medium whitespace-nowrap">Ganti</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Products & Cart — side by side -->
+  <div data-pos-customer-target="productArea" class="flex-1 min-h-0 flex flex-col transition-opacity duration-300">
+    <div class="pos-workspace">
+
+      <!-- Product search (kiri) -->
+      <div class="pos-workspace__products">
+        <div class="pos-panel pos-panel--products bg-white rounded-2xl border border-slate-100 shadow-sm">
+          <div class="p-4 border-b border-slate-100 flex-shrink-0">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="w-7 h-7 bg-emerald-600 text-white rounded-lg flex items-center justify-center text-xs font-bold">2</span>
+              <h3 class="font-semibold text-slate-900 text-sm">Cari & Tambah Produk</h3>
+            </div>
+            <div class="relative">
+              <input type="text"
+                     data-pos-cart-target="search"
+                     data-action="input->pos-cart#filterProducts keydown->pos-cart#searchKeydown"
+                     placeholder="Nama produk / SKU — tekan Enter untuk tambah cepat"
+                     autocomplete="off"
+                     class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white transition text-sm">
+              <span class="absolute left-3.5 top-3 text-slate-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </span>
+            </div>
+            <p data-pos-cart-target="resultsHint" class="text-xs text-slate-400 mt-2 px-1"></p>
+          </div>
+          <div data-pos-cart-target="productList"
+               class="pos-panel__scroll p-3 space-y-1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Keranjang (kanan) -->
+      <div class="pos-workspace__cart">
+        <div class="pos-panel pos-panel--cart bg-white rounded-2xl border border-slate-100 shadow-sm">
+          <%= form_with model: @transaction, url: pos_transactions_path,
+                        data: { pos_payment_target: "form", action: "submit->pos-payment#handleSubmit" },
+                        class: "flex flex-col" do |f| %>
+
+            <%= f.hidden_field :customer_id, data: { pos_customer_target: "customerId" } %>
+            <%= f.hidden_field :amount_paid, value: "", data: { pos_payment_target: "amountPaidField" } %>
+            <%= f.hidden_field :payment_method, value: "cash", data: { pos_payment_target: "paymentMethodField" } %>
+
+            <div data-pos-payment-target="checkoutPanel" class="flex flex-col">
+
+              <% if @transaction.errors.any? %>
+                <div class="flex-shrink-0 p-4 pb-0">
+                  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                    <ul class="list-disc list-inside space-y-1">
+                      <% @transaction.errors.full_messages.each do |msg| %>
+                        <li><%= msg %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              <% end %>
+
+              <div class="flex-shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
+                <h3 class="font-semibold text-slate-900 text-sm">Keranjang</h3>
+                <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">POS</span>
+              </div>
+
+              <div class="pos-panel__scroll pos-panel__scroll--cart px-4">
+                <div data-pos-cart-target="cartEmpty" class="text-center py-8">
+                  <div class="text-3xl mb-2">🛒</div>
+                  <p class="text-xs text-slate-500">Belum ada item.<br>Cari produk di kiri.</p>
+                </div>
+
+                <div data-pos-cart-target="cartItems" class="space-y-1.5 hidden pb-2"></div>
+              </div>
+
+              <div data-pos-cart-target="itemsFields" class="hidden"></div>
+
+              <div class="flex-shrink-0 border-t border-slate-100 p-4 space-y-3 bg-white">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-500 text-sm">Total Bayar</span>
+                  <span data-pos-cart-target="totalAmount" class="text-xl font-bold text-emerald-600">Rp 0</span>
+                </div>
+
+                <div>
+                  <%= label_tag :payment_method_ui, "Metode Pembayaran", class: "block text-xs font-medium text-slate-700 mb-1.5" %>
+                  <%= select_tag :payment_method_ui,
+                                 options_for_select([["💵 Cash / Tunai", "cash"], ["🏦 Transfer", "transfer"]], "cash"),
+                                 data: {
+                                   pos_payment_target: "paymentMethod",
+                                   action: "change->pos-payment#syncPaymentMethod",
+                                   tom_select_search: "false"
+                                 },
+                                 class: "w-full px-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-sky-500 text-sm" %>
+                </div>
+
+                <button type="button"
+                        data-pos-cart-target="submitBtn"
+                        data-action="click->pos-payment#handleCheckout"
+                        disabled
+                        class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer opacity-50 cursor-not-allowed text-sm">
+                  Bayar
+                </button>
+              </div>
+            </div>
+
+            <!-- Pembayaran Tunai -->
+            <div data-pos-payment-target="paymentPanel" class="hidden p-4 space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">💵</div>
+                <div>
+                  <h3 class="font-semibold text-slate-900 text-sm">Pembayaran Tunai</h3>
+                  <p class="text-xs text-slate-500">Masukkan nominal uang</p>
+                </div>
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-xl">
+                <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Total Belanja</p>
+                <p data-pos-payment-target="totalBelanjaPayment" class="text-2xl font-bold text-slate-900">Rp 0</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1.5">Nominal Dibayarkan</label>
+                <input type="text"
+                       inputmode="numeric"
+                       data-pos-payment-target="nominalInput"
+                       data-action="input->pos-payment#formatNominalInput"
+                       placeholder="0"
+                       class="w-full px-4 py-3 text-xl font-bold text-center border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                <div class="flex flex-wrap gap-1.5 mt-2">
+                  <button type="button" data-action="click->pos-payment#setExactAmount"
+                          class="px-2.5 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition">Uang Pas</button>
+                  <button type="button" data-action="click->pos-payment#addNominal" data-amount="10000"
+                          class="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition">+10rb</button>
+                  <button type="button" data-action="click->pos-payment#addNominal" data-amount="20000"
+                          class="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition">+20rb</button>
+                  <button type="button" data-action="click->pos-payment#addNominal" data-amount="50000"
+                          class="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition">+50rb</button>
+                  <button type="button" data-action="click->pos-payment#addNominal" data-amount="100000"
+                          class="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition">+100rb</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div class="p-3 border border-slate-200 rounded-xl text-center">
+                  <p class="text-[10px] text-slate-500 uppercase mb-0.5">Bayar</p>
+                  <p data-pos-payment-target="bayarDisplay" class="text-lg font-bold text-sky-600">Rp 0</p>
+                </div>
+                <div class="p-3 border border-slate-200 rounded-xl text-center">
+                  <p class="text-[10px] text-slate-500 uppercase mb-0.5">Kembalian</p>
+                  <p data-pos-payment-target="kembalianWrapper">
+                    <span data-pos-payment-target="kembalianDisplay" class="text-lg font-bold text-emerald-600">Rp 0</span>
+                  </p>
+                </div>
+              </div>
+
+              <p data-pos-payment-target="insufficientWarning" class="hidden text-xs text-red-600 text-center bg-red-50 px-3 py-2 rounded-xl">
+                Nominal kurang dari total belanja
+              </p>
+
+              <div class="flex flex-col gap-2 pt-1">
+                <button type="button"
+                        data-pos-payment-target="confirmBtn"
+                        data-action="click->pos-payment#confirmPayment"
+                        disabled
+                        class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition opacity-50 cursor-not-allowed text-sm">
+                  Selesaikan Transaksi
+                </button>
+                <button type="button"
+                        data-action="click->pos-payment#closePayment"
+                        class="w-full py-2.5 border border-slate-200 text-slate-600 font-medium rounded-xl hover:bg-slate-50 transition text-sm">
+                  Kembali ke Keranjang
+                </button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
