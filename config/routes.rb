@@ -152,12 +152,81 @@ Rails.application.routes.draw do
     resource :customer, only: [:edit, :update] # profil customer
   end
 
-  # ==================== API (untuk future mobile app) ====================
-  namespace :api do
-    namespace :v1 do
-      resources :products, only: [:index, :show]
-      resources :orders, only: [:create, :index]
-      post 'pos/checkout', to: 'pos#checkout'
+  # ==================== API JSON ====================
+  namespace :v1, defaults: { format: :json } do
+    namespace :api do
+      post "login", to: "sessions#create"
+      delete "logout", to: "sessions#destroy"
+      post "register", to: "registrations#create"
+      get "me", to: "profiles#show"
+      patch "me", to: "profiles#update"
+
+      namespace :catalog do
+        resources :products, only: [:index, :show]
+        resources :categories, only: [:index, :show]
+      end
+
+      namespace :store do
+        resource :cart, only: [:show], controller: "carts" do
+          post :add_item
+          patch "items/:id", action: :update_item
+          delete "items/:id", action: :remove_item
+        end
+        resources :wishlists, only: [:index, :destroy] do
+          collection do
+            post :toggle
+          end
+        end
+        resources :orders, only: [:index, :show, :create] do
+          member do
+            get :track
+          end
+        end
+      end
+
+      namespace :admin do
+        get "dashboard", to: "dashboards#show"
+        resources :categories, except: [:new, :edit]
+        resources :suppliers, except: [:new, :edit]
+        resources :products, except: [:new, :edit]
+        resources :customers, except: [:new, :edit]
+        resources :orders, only: [:index, :show, :update]
+        resources :users, except: [:new, :edit]
+        resources :roles, except: [:new, :edit]
+        resources :stock_movements, only: [:index, :create]
+      end
+
+      namespace :pos do
+        get "dashboard", to: "dashboards#show"
+        get "products", to: "products#index"
+        resources :transactions, only: [:index, :show, :create]
+        resources :orders, only: [:index, :show, :update] do
+          member do
+            get :shipping_slip
+          end
+        end
+      end
+
+      namespace :courier do
+        resources :deliveries, only: [:index, :show] do
+          member do
+            patch :pickup
+          end
+        end
+        resources :completed, only: [:index, :show] do
+          member do
+            patch :finish
+          end
+        end
+      end
+
+      namespace :owner do
+        get "dashboard", to: "dashboards#show"
+        get "reports/sales", to: "reports#sales"
+        get "reports/stock", to: "reports#stock"
+        resources :customers, only: [:index]
+        resources :suppliers, only: [:index]
+      end
     end
   end
 
